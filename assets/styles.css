@@ -267,6 +267,35 @@ label,
   font-weight: 700;
 }
 
+.toggle-label {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.toggle-label input {
+  width: 18px;
+  min-height: 18px;
+  margin: 0;
+}
+
+.toggle-label span,
+.toggle-label small {
+  display: block;
+}
+
+.toggle-label small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
 input,
 select {
   width: 100%;

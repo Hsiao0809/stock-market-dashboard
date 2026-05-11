@@ -66,7 +66,7 @@
           <div class="panel-heading table-heading">
             <div>
               <p class="eyebrow">Strategy Scanner</p>
-              <h2>策略掃描與自動模擬開單</h2>
+              <h2>數據掃描與自動篩選股票</h2>
             </div>
             <span class="pill neutral">紙上交易，不會送出真實委託</span>
           </div>
@@ -113,10 +113,24 @@
               停利 %
               <input id="takeProfitPct" type="number" min="0.1" max="80" step="0.1" inputmode="decimal" />
             </label>
+            <label class="toggle-label">
+              <input id="autoScan" type="checkbox" />
+              <span>
+                自動掃描
+                <small>資料載入與條件變更後重新篩選</small>
+              </span>
+            </label>
+            <label class="toggle-label">
+              <input id="showQualifiedOnly" type="checkbox" />
+              <span>
+                只顯示通過篩選
+                <small>預設只列出 BUY 訊號</small>
+              </span>
+            </label>
           </div>
 
           <div class="scanner-actions">
-            <button class="primary-button" id="scanStrategy" type="button">掃描策略</button>
+            <button class="primary-button" id="scanStrategy" type="button">重新掃描</button>
             <button class="primary-button" id="autoPaperTrade" type="button">自動模擬開單</button>
             <button class="ghost-button" id="clearPaperOrders" type="button">清除模擬單</button>
             <p class="form-message" id="scannerMessage" role="status"></p>
@@ -142,7 +156,7 @@
               <tbody id="scannerRows"></tbody>
             </table>
           </div>
-          <div id="emptyScanner" class="empty-state">尚未掃描。設定策略後按「掃描策略」。</div>
+          <div id="emptyScanner" class="empty-state">資料載入後會自動掃描。可調整條件或按「重新掃描」。</div>
         </section>
 
         <section class="panel orders-panel">

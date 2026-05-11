@@ -9,6 +9,8 @@
     theme: "light",
     strategyMarket: "ALL",
     strategyPreset: "momentum",
+    autoScan: true,
+    showQualifiedOnly: true,
     virtualCash: 1000000,
     orderBudgetPct: 10,
     maxOrders: 5,
@@ -24,7 +26,7 @@
       sampleQuote("TWSE", "2330", "台積電", "TWD", 1185, 1205, 1198, 1175, 1195, 38240155, "2026-05-08"),
       sampleQuote("TWSE", "2317", "鴻海", "TWD", 148, 151, 152, 147, 149.5, 75601422, "2026-05-08"),
       sampleQuote("TPEX", "00679B", "元大美債20年", "TWD", 26.69, 26.71, 26.75, 26.68, 26.7, 31453075, "2026-05-11"),
-      sampleQuote("US", "AAPL", "APPLE INC", "USD", 291.98, 293.32, 293.88, 290.23, 291.15, 14742245, "2026-05-11"),
+      sampleQuote("US", "AAPL", "APPLE INC", "USD", 284.0, 280.0, 293.88, 283.2, 291.15, 14742245, "2026-05-11"),
       sampleQuote("US", "MSFT", "MICROSOFT CORP", "USD", 514.5, 514.86, 518.25, 511.9, 515.36, 21124000, "2026-05-11"),
       sampleQuote("US", "NVDA", "NVIDIA CORP", "USD", 197.2, 198.2, 200.4, 196.7, 199.11, 40251000, "2026-05-11"),
       sampleQuote("US", "SPY", "SPDR S&P 500 ETF", "USD", 680.8, 680.8, 683.2, 679.4, 682.1, 65000110, "2026-05-11")
@@ -79,6 +81,8 @@
     minTurnoverTwd: document.getElementById("minTurnoverTwd"),
     stopLossPct: document.getElementById("stopLossPct"),
     takeProfitPct: document.getElementById("takeProfitPct"),
+    autoScan: document.getElementById("autoScan"),
+    showQualifiedOnly: document.getElementById("showQualifiedOnly"),
     scanStrategy: document.getElementById("scanStrategy"),
     autoPaperTrade: document.getElementById("autoPaperTrade"),
     clearPaperOrders: document.getElementById("clearPaperOrders"),
@@ -104,6 +108,7 @@
     bindEvents();
     render();
     await loadSnapshot();
+    if (appState.settings.autoScan) runDataScan("auto", false);
     render();
   }
 
@@ -132,11 +137,16 @@
       "maxOrders",
       "minTurnoverTwd",
       "stopLossPct",
-      "takeProfitPct"
+      "takeProfitPct",
+      "autoScan",
+      "showQualifiedOnly"
     ].forEach((id) => {
       elements[id].addEventListener("change", () => {
         readStrategyConfig();
         persist();
+        if (appState.settings.autoScan || id === "showQualifiedOnly") {
+          runDataScan("auto");
+        }
       });
     });
 
@@ -391,21 +401,33 @@
   }
 
   function scanStrategy() {
+    runDataScan("manual");
+  }
+
+  function runDataScan(mode = "manual", shouldRender = true) {
     const config = readStrategyConfig();
-    scannerResults = (snapshot.quotes || [])
+    const quotes = snapshot.quotes || [];
+    const allMatches = quotes
       .map((quoteItem) => scoreCandidate(quoteItem, config))
       .filter(Boolean)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, Math.max(30, config.maxOrders * 4));
+      .sort((a, b) => b.score - a.score);
+    const qualified = allMatches.filter((item) => item.signal === "BUY");
+    const visible = config.showQualifiedOnly ? qualified : allMatches;
+    scannerResults = visible.slice(0, Math.max(50, config.maxOrders * 6));
 
-    const buyCount = scannerResults.filter((item) => item.signal === "BUY").length;
-    showScannerMessage(`掃描完成：${scannerResults.length} 個候選，${buyCount} 個 BUY 訊號。`);
-    renderScanner();
+    const prefix = mode === "auto" ? "自動掃描完成" : "掃描完成";
+    const filterText = config.showQualifiedOnly ? "只顯示 BUY" : "顯示 BUY / WATCH";
+    showScannerMessage(
+      `${prefix}：掃描 ${quotes.length} 檔，符合篩選 ${qualified.length} 檔，顯示 ${scannerResults.length} 檔（${filterText}）。`,
+      scannerResults.length === 0
+    );
+    if (shouldRender) renderScanner();
+    return scannerResults;
   }
 
   function autoPaperTrade() {
     const config = readStrategyConfig();
-    if (!scannerResults.length) scanStrategy();
+    if (!scannerResults.length) runDataScan("auto");
     const buySignals = scannerResults.filter((item) => item.signal === "BUY").slice(0, config.maxOrders);
     let created = 0;
     let skipped = 0;
@@ -686,6 +708,8 @@
     const settings = appState.settings;
     settings.strategyMarket = elements.strategyMarket.value;
     settings.strategyPreset = elements.strategyPreset.value;
+    settings.autoScan = elements.autoScan.checked;
+    settings.showQualifiedOnly = elements.showQualifiedOnly.checked;
     settings.virtualCash = clamp(toNumber(elements.virtualCash.value), 10000, 1000000000, DEFAULT_SETTINGS.virtualCash);
     settings.orderBudgetPct = clamp(toNumber(elements.orderBudgetPct.value), 1, 100, DEFAULT_SETTINGS.orderBudgetPct);
     settings.maxOrders = Math.round(clamp(toNumber(elements.maxOrders.value), 1, 30, DEFAULT_SETTINGS.maxOrders));
@@ -707,6 +731,8 @@
   function syncStrategyInputs() {
     elements.strategyMarket.value = appState.settings.strategyMarket;
     elements.strategyPreset.value = appState.settings.strategyPreset;
+    elements.autoScan.checked = Boolean(appState.settings.autoScan);
+    elements.showQualifiedOnly.checked = Boolean(appState.settings.showQualifiedOnly);
     elements.virtualCash.value = appState.settings.virtualCash;
     elements.orderBudgetPct.value = appState.settings.orderBudgetPct;
     elements.maxOrders.value = appState.settings.maxOrders;
@@ -731,6 +757,8 @@
     settings.theme = settings.theme === "dark" ? "dark" : "light";
     settings.strategyMarket = ["ALL", "TWSE", "TPEX", "US"].includes(settings.strategyMarket) ? settings.strategyMarket : "ALL";
     settings.strategyPreset = ["momentum", "reversal", "liquidity"].includes(settings.strategyPreset) ? settings.strategyPreset : "momentum";
+    settings.autoScan = settings.autoScan !== false;
+    settings.showQualifiedOnly = settings.showQualifiedOnly !== false;
 
     const positions = Array.isArray(raw.positions)
       ? raw.positions
