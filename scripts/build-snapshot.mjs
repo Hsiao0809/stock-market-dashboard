@@ -63,6 +63,9 @@ async function fetchTwse() {
           symbol: clean(row.Code),
           name: clean(row.Name),
           currency: "TWD",
+          open: parseNumber(row.OpeningPrice),
+          high: parseNumber(row.HighestPrice),
+          low: parseNumber(row.LowestPrice),
           price,
           previousClose,
           change,
@@ -70,7 +73,8 @@ async function fetchTwse() {
           asOf: parseTaiwanDate(row.Date),
           source: "TWSE STOCK_DAY_ALL",
           status: price == null ? "partial" : "ok",
-          volume: parseNumber(row.TradeVolume)
+          volume: parseNumber(row.TradeVolume),
+          turnover: parseNumber(row.TradeValue)
         };
       })
       .filter((item) => item.symbol && item.price != null);
@@ -94,6 +98,9 @@ async function fetchTpex() {
           symbol: clean(row.SecuritiesCompanyCode),
           name: clean(row.CompanyName),
           currency: "TWD",
+          open: parseNumber(row.Open),
+          high: parseNumber(row.High),
+          low: parseNumber(row.Low),
           price,
           previousClose,
           change,
@@ -101,7 +108,8 @@ async function fetchTpex() {
           asOf: parseTaiwanDate(row.Date),
           source: "TPEx daily close",
           status: price == null ? "partial" : "ok",
-          volume: parseNumber(row.TradingShares)
+          volume: parseNumber(row.TradingShares),
+          turnover: parseNumber(row.TransactionAmount)
         };
       })
       .filter((item) => item.symbol && item.price != null);
@@ -131,6 +139,9 @@ async function fetchUsQuotes(symbols) {
         symbol,
         name: clean(row.Name) || symbol,
         currency: "USD",
+        open: parseNumber(row.Open),
+        high: parseNumber(row.High),
+        low: parseNumber(row.Low),
         price,
         previousClose,
         change,
@@ -138,7 +149,8 @@ async function fetchUsQuotes(symbols) {
         asOf: clean(`${row.Date || ""} ${row.Time || ""}`).trim(),
         source: "Stooq quote CSV",
         status: price == null ? "partial" : "ok",
-        volume: parseNumber(row.Volume)
+        volume: parseNumber(row.Volume),
+        turnover: price != null && parseNumber(row.Volume) != null ? round(price * parseNumber(row.Volume), 2) : null
       });
       await wait(150);
     } catch (error) {

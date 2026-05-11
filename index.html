@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="台股與美股投資組合監控台，使用 GitHub Pages 靜態網頁與公開資料快照。"
+      content="台股與美股策略掃描、紙上交易模擬開單與投資組合監控台。"
     />
-    <title>台股 / 美股投資組合監控台</title>
+    <title>台股 / 美股策略掃描監控台</title>
     <link rel="stylesheet" href="assets/styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">GitHub Pages 靜態監控台</p>
-          <h1>台股 / 美股投資組合</h1>
+          <p class="eyebrow">GitHub Pages 靜態策略監控台</p>
+          <h1>台股 / 美股策略掃描與模擬開單</h1>
         </div>
         <div class="topbar-actions">
           <label class="select-label" for="displayCurrency">
@@ -25,9 +25,7 @@
               <option value="USD">USD</option>
             </select>
           </label>
-          <button class="icon-button" id="themeToggle" type="button" title="切換深淺色">
-            ◐
-          </button>
+          <button class="icon-button" id="themeToggle" type="button" title="切換深淺色">◐</button>
         </div>
       </header>
 
@@ -46,11 +44,11 @@
 
         <section class="summary-grid" aria-label="投資組合總覽">
           <article class="metric-card">
-            <span>總市值</span>
+            <span>持股總市值</span>
             <strong id="totalValue">--</strong>
           </article>
           <article class="metric-card">
-            <span>總成本</span>
+            <span>持股總成本</span>
             <strong id="totalCost">--</strong>
           </article>
           <article class="metric-card">
@@ -59,9 +57,123 @@
             <small id="totalPnlPercent">--</small>
           </article>
           <article class="metric-card">
-            <span>當日變動</span>
-            <strong id="dayChange">--</strong>
+            <span>模擬單占用資金</span>
+            <strong id="paperExposure">--</strong>
           </article>
+        </section>
+
+        <section class="panel scanner-panel">
+          <div class="panel-heading table-heading">
+            <div>
+              <p class="eyebrow">Strategy Scanner</p>
+              <h2>策略掃描與自動模擬開單</h2>
+            </div>
+            <span class="pill neutral">紙上交易，不會送出真實委託</span>
+          </div>
+
+          <div class="strategy-grid">
+            <label>
+              掃描市場
+              <select id="strategyMarket">
+                <option value="ALL">全部</option>
+                <option value="TWSE">上市 TWSE</option>
+                <option value="TPEX">上櫃 TPEx</option>
+                <option value="US">美股 US</option>
+              </select>
+            </label>
+            <label>
+              策略
+              <select id="strategyPreset">
+                <option value="momentum">動能突破</option>
+                <option value="reversal">回檔轉強</option>
+                <option value="liquidity">量價強勢</option>
+              </select>
+            </label>
+            <label>
+              模擬資金 TWD
+              <input id="virtualCash" type="number" min="10000" step="10000" inputmode="decimal" />
+            </label>
+            <label>
+              單筆資金 %
+              <input id="orderBudgetPct" type="number" min="1" max="100" step="1" inputmode="decimal" />
+            </label>
+            <label>
+              最大開單數
+              <input id="maxOrders" type="number" min="1" max="30" step="1" inputmode="numeric" />
+            </label>
+            <label>
+              最低成交值 TWD
+              <input id="minTurnoverTwd" type="number" min="0" step="1000000" inputmode="decimal" />
+            </label>
+            <label>
+              停損 %
+              <input id="stopLossPct" type="number" min="0.1" max="30" step="0.1" inputmode="decimal" />
+            </label>
+            <label>
+              停利 %
+              <input id="takeProfitPct" type="number" min="0.1" max="80" step="0.1" inputmode="decimal" />
+            </label>
+          </div>
+
+          <div class="scanner-actions">
+            <button class="primary-button" id="scanStrategy" type="button">掃描策略</button>
+            <button class="primary-button" id="autoPaperTrade" type="button">自動模擬開單</button>
+            <button class="ghost-button" id="clearPaperOrders" type="button">清除模擬單</button>
+            <p class="form-message" id="scannerMessage" role="status"></p>
+          </div>
+
+          <p class="note">
+            目前策略使用延遲 / 收盤快照的漲跌幅、K 棒位置、成交量與成交值做掃描，只適合紙上交易驗證流程，不代表投資建議。
+          </p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>分數</th>
+                  <th>標的</th>
+                  <th>價格</th>
+                  <th>訊號</th>
+                  <th>成交值</th>
+                  <th>理由</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="scannerRows"></tbody>
+            </table>
+          </div>
+          <div id="emptyScanner" class="empty-state">尚未掃描。設定策略後按「掃描策略」。</div>
+        </section>
+
+        <section class="panel orders-panel">
+          <div class="panel-heading table-heading">
+            <div>
+              <p class="eyebrow">Paper Orders</p>
+              <h2>模擬開單紀錄</h2>
+            </div>
+            <div class="table-tools">
+              <button class="ghost-button" id="exportPaperOrders" type="button">匯出模擬單</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>時間</th>
+                  <th>標的</th>
+                  <th>策略</th>
+                  <th>方向</th>
+                  <th>股數</th>
+                  <th>進場</th>
+                  <th>停損 / 停利</th>
+                  <th>狀態</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="paperOrderRows"></tbody>
+            </table>
+          </div>
+          <div id="emptyPaperOrders" class="empty-state" hidden>尚未建立模擬單。</div>
         </section>
 
         <section class="workspace-grid">
@@ -124,7 +236,7 @@
             </div>
             <div id="sourceList" class="source-list"></div>
             <p class="note">
-              行情為延遲或收盤資料。持股資料只保存在你的瀏覽器，不會寫入 GitHub。
+              行情為延遲或收盤資料。持股與模擬單只保存在你的瀏覽器，不會寫入 GitHub。
             </p>
           </section>
         </section>
@@ -197,6 +309,7 @@
                   <th>名稱</th>
                   <th>價格</th>
                   <th>漲跌</th>
+                  <th>成交值</th>
                   <th>時間</th>
                   <th>操作</th>
                 </tr>

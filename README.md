@@ -5,6 +5,8 @@ Pure frontend portfolio dashboard for Taiwan and US stocks, designed for GitHub 
 ## What it does
 
 - Shows TWSE, TPEx, and US quote snapshots from static JSON.
+- Scans symbols with built-in paper-trading strategies.
+- Creates simulated buy orders with sizing, stop loss, and take profit levels.
 - Tracks a local portfolio in the browser with `localStorage`.
 - Calculates market value, cost, unrealized P/L, day change, and USD/TWD conversion.
 - Imports and exports portfolio JSON.
@@ -40,4 +42,16 @@ Edit `assets/watchlist.json`. TWSE and TPEx snapshots include regular Taiwan sec
 3. In repository settings, set Pages source to **GitHub Actions**.
 4. Run the `Build and deploy GitHub Pages` workflow manually, or wait for the scheduled run.
 
-Portfolio data remains private to each browser because it is stored only in `localStorage`.
+Portfolio and paper-order data remain private to each browser because they are stored only in `localStorage`.
+
+## Strategy scanner
+
+The scanner is a paper-trading workflow only. It does not send real orders.
+
+Built-in presets:
+
+- Momentum breakout: looks for positive daily momentum, close near the high, and enough turnover.
+- Reversal: looks for pullback names closing in the upper part of the daily range.
+- Liquidity movers: ranks high-turnover symbols with meaningful daily movement.
+
+The current strategy engine uses delayed/EOD snapshot fields only: price, previous close, open, high, low, volume, turnover, and USD/TWD. It is useful for workflow testing and screening, not for investment advice or real-time execution.
