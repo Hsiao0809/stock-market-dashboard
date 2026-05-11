@@ -38,9 +38,16 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
+  height: 100%;
   min-width: 320px;
+  overflow: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
@@ -60,8 +67,12 @@ button {
 
 .app-shell {
   width: min(1440px, calc(100% - 32px));
+  height: 100dvh;
   margin: 0 auto;
-  padding: 28px 0 48px;
+  padding: 14px 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
 }
 
 .topbar {
@@ -69,7 +80,21 @@ button {
   align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 20px;
+  min-height: 0;
+}
+
+main {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(360px, 1.1fr) minmax(360px, 1fr) minmax(320px, 0.9fr);
+  grid-template-rows: auto auto minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-areas:
+    "status status status"
+    "summary summary summary"
+    "scanner scanner orders"
+    "portfolio quotes workspace";
+  gap: 12px;
+  overflow: hidden;
 }
 
 .topbar h1,
@@ -79,12 +104,12 @@ button {
 }
 
 .topbar h1 {
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: clamp(24px, 3vw, 34px);
   line-height: 1.1;
 }
 
 .panel h2 {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .eyebrow {
@@ -114,12 +139,13 @@ button {
 }
 
 .status-strip {
+  grid-area: status;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(150px, auto) auto;
   gap: 16px;
   align-items: center;
-  padding: 14px 16px;
-  margin-bottom: 16px;
+  padding: 10px 14px;
+  margin-bottom: 0;
 }
 
 .status-strip strong {
@@ -136,21 +162,23 @@ button {
 }
 
 .summary-grid {
+  grid-area: summary;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 0;
+  min-height: 0;
 }
 
 .metric-card {
-  min-height: 116px;
-  padding: 18px;
+  min-height: 82px;
+  padding: 12px 14px;
 }
 
 .metric-card strong {
   display: block;
-  margin-top: 10px;
-  font-size: clamp(23px, 3vw, 34px);
+  margin-top: 6px;
+  font-size: clamp(20px, 2.1vw, 28px);
   line-height: 1.05;
 }
 
@@ -161,15 +189,27 @@ button {
 }
 
 .workspace-grid {
+  grid-area: workspace;
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.8fr);
-  gap: 16px;
-  margin-bottom: 16px;
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+  margin-bottom: 0;
 }
 
 .scanner-panel,
 .orders-panel {
-  margin-bottom: 16px;
+  margin-bottom: 0;
+}
+
+.scanner-panel {
+  grid-area: scanner;
+}
+
+.orders-panel {
+  grid-area: orders;
 }
 
 .strategy-grid {
@@ -188,7 +228,11 @@ button {
 }
 
 .panel {
-  padding: 18px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
 }
 
 .panel-heading {
@@ -196,7 +240,8 @@ button {
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 16px;
+  flex-shrink: 0;
+  margin-bottom: 12px;
 }
 
 .table-heading {
@@ -207,6 +252,10 @@ button {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+
+.workspace-grid .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 label,
@@ -275,13 +324,16 @@ button:focus-visible {
 }
 
 .form-message {
+  flex-shrink: 0;
   min-height: 22px;
-  margin: 12px 0;
+  margin: 8px 0;
 }
 
 .source-list {
   display: grid;
   gap: 10px;
+  min-height: 0;
+  overflow: auto;
 }
 
 .source-item {
@@ -344,12 +396,22 @@ button:focus-visible {
 
 .portfolio-panel,
 .quotes-panel {
-  margin-bottom: 16px;
+  margin-bottom: 0;
+}
+
+.portfolio-panel {
+  grid-area: portfolio;
+}
+
+.quotes-panel {
+  grid-area: quotes;
 }
 
 .table-wrap {
   width: 100%;
-  overflow-x: auto;
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
 }
 
 table {
@@ -456,23 +518,48 @@ tbody tr:hover {
 }
 
 .empty-state {
+  flex-shrink: 0;
   padding: 26px 12px;
   color: var(--muted);
   text-align: center;
 }
 
 .note {
+  flex-shrink: 0;
   margin: 14px 0 0;
   font-size: 13px;
 }
 
+.scanner-panel .note {
+  margin: 4px 0 10px;
+}
+
+.position-form,
+.source-panel {
+  overflow: auto;
+}
+
 @media (max-width: 1040px) {
+  main {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(360px, auto) minmax(320px, auto) minmax(360px, auto);
+    grid-template-areas:
+      "status status"
+      "summary summary"
+      "scanner orders"
+      "portfolio quotes"
+      "workspace workspace";
+    overflow: auto;
+    padding-right: 4px;
+  }
+
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .workspace-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .strategy-grid {
@@ -483,7 +570,21 @@ tbody tr:hover {
 @media (max-width: 760px) {
   .app-shell {
     width: min(100% - 20px, 1440px);
-    padding-top: 18px;
+    padding: 10px 0;
+  }
+
+  main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "status"
+      "summary"
+      "scanner"
+      "orders"
+      "workspace"
+      "portfolio"
+      "quotes";
+    overflow: auto;
   }
 
   .topbar,
@@ -501,8 +602,14 @@ tbody tr:hover {
 
   .summary-grid,
   .form-grid,
+  .workspace-grid,
+  .workspace-grid .form-grid,
   .strategy-grid {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-grid {
+    grid-template-rows: auto auto;
   }
 
   .table-tools,
@@ -521,5 +628,38 @@ tbody tr:hover {
 
   .segment {
     flex: 1;
+  }
+}
+
+@media (max-height: 820px) and (min-width: 1041px) {
+  .app-shell {
+    padding: 10px 0;
+    gap: 10px;
+  }
+
+  main {
+    gap: 10px;
+  }
+
+  .topbar h1 {
+    font-size: clamp(22px, 2.6vw, 30px);
+  }
+
+  .eyebrow {
+    margin-bottom: 2px;
+  }
+
+  .metric-card {
+    min-height: 72px;
+    padding: 10px 12px;
+  }
+
+  .panel {
+    padding: 12px;
+  }
+
+  th,
+  td {
+    padding: 10px 8px;
   }
 }
