@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="台股與美股投資組合監控台，使用 GitHub Pages 靜態網頁與公開資料快照。"
+    />
+    <title>台股 / 美股投資組合監控台</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">GitHub Pages 靜態監控台</p>
+          <h1>台股 / 美股投資組合</h1>
+        </div>
+        <div class="topbar-actions">
+          <label class="select-label" for="displayCurrency">
+            顯示幣別
+            <select id="displayCurrency">
+              <option value="TWD">TWD</option>
+              <option value="USD">USD</option>
+            </select>
+          </label>
+          <button class="icon-button" id="themeToggle" type="button" title="切換深淺色">
+            ◐
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="status-strip" aria-label="資料狀態">
+          <div>
+            <span class="muted">資料時間</span>
+            <strong id="snapshotTime">載入中</strong>
+          </div>
+          <div>
+            <span class="muted">USD/TWD</span>
+            <strong id="fxRate">--</strong>
+          </div>
+          <div id="loadStatus" class="pill neutral">讀取資料中</div>
+        </section>
+
+        <section class="summary-grid" aria-label="投資組合總覽">
+          <article class="metric-card">
+            <span>總市值</span>
+            <strong id="totalValue">--</strong>
+          </article>
+          <article class="metric-card">
+            <span>總成本</span>
+            <strong id="totalCost">--</strong>
+          </article>
+          <article class="metric-card">
+            <span>未實現損益</span>
+            <strong id="totalPnl">--</strong>
+            <small id="totalPnlPercent">--</small>
+          </article>
+          <article class="metric-card">
+            <span>當日變動</span>
+            <strong id="dayChange">--</strong>
+          </article>
+        </section>
+
+        <section class="workspace-grid">
+          <form id="positionForm" class="panel position-form">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Portfolio</p>
+                <h2 id="formTitle">新增持股</h2>
+              </div>
+              <button class="ghost-button" id="resetForm" type="button">清空</button>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                市場
+                <select id="marketInput" required>
+                  <option value="TWSE">上市 TWSE</option>
+                  <option value="TPEX">上櫃 TPEx</option>
+                  <option value="US">美股 US</option>
+                </select>
+              </label>
+              <label>
+                代號
+                <input id="symbolInput" autocomplete="off" placeholder="2330 / AAPL" required />
+              </label>
+              <label>
+                股數
+                <input id="quantityInput" inputmode="decimal" min="0" step="0.0001" type="number" required />
+              </label>
+              <label>
+                平均成本
+                <input id="averageCostInput" inputmode="decimal" min="0" step="0.0001" type="number" required />
+              </label>
+              <label>
+                成本幣別
+                <select id="currencyInput">
+                  <option value="TWD">TWD</option>
+                  <option value="USD">USD</option>
+                </select>
+              </label>
+              <label>
+                備註
+                <input id="noteInput" autocomplete="off" placeholder="長期 / ETF / 觀察" />
+              </label>
+            </div>
+
+            <p class="form-message" id="formMessage" role="status"></p>
+            <div class="form-actions">
+              <button class="primary-button" id="submitPosition" type="submit">加入持股</button>
+              <button class="ghost-button" id="cancelEdit" type="button" hidden>取消編輯</button>
+            </div>
+          </form>
+
+          <section class="panel source-panel" aria-label="資料來源">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Sources</p>
+                <h2>資料來源狀態</h2>
+              </div>
+            </div>
+            <div id="sourceList" class="source-list"></div>
+            <p class="note">
+              行情為延遲或收盤資料。持股資料只保存在你的瀏覽器，不會寫入 GitHub。
+            </p>
+          </section>
+        </section>
+
+        <section class="panel portfolio-panel">
+          <div class="panel-heading table-heading">
+            <div>
+              <p class="eyebrow">Holdings</p>
+              <h2>持股追蹤</h2>
+            </div>
+            <div class="table-tools">
+              <label class="select-label" for="sortMode">
+                排序
+                <select id="sortMode">
+                  <option value="marketValue">市值</option>
+                  <option value="pnl">損益</option>
+                  <option value="dayChange">當日變動</option>
+                  <option value="symbol">代號</option>
+                </select>
+              </label>
+              <button class="ghost-button" id="exportPortfolio" type="button">匯出</button>
+              <button class="ghost-button" id="importPortfolio" type="button">匯入</button>
+              <input id="importFile" type="file" accept="application/json,.json" hidden />
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>標的</th>
+                  <th>現價</th>
+                  <th>股數</th>
+                  <th>成本</th>
+                  <th>市值</th>
+                  <th>損益</th>
+                  <th>當日</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="portfolioRows"></tbody>
+            </table>
+          </div>
+          <div id="emptyPortfolio" class="empty-state" hidden>
+            尚未新增持股。可以從上方表單輸入，或在市場快照中點選加入。
+          </div>
+        </section>
+
+        <section class="panel quotes-panel">
+          <div class="panel-heading table-heading">
+            <div>
+              <p class="eyebrow">Market Snapshot</p>
+              <h2>市場快照</h2>
+            </div>
+            <div class="table-tools">
+              <div class="segmented" role="tablist" aria-label="市場篩選">
+                <button class="segment active" data-market-filter="ALL" type="button">全部</button>
+                <button class="segment" data-market-filter="TWSE" type="button">上市</button>
+                <button class="segment" data-market-filter="TPEX" type="button">上櫃</button>
+                <button class="segment" data-market-filter="US" type="button">美股</button>
+              </div>
+              <input id="quoteSearch" class="search-input" autocomplete="off" placeholder="搜尋代號或名稱" />
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>市場</th>
+                  <th>代號</th>
+                  <th>名稱</th>
+                  <th>價格</th>
+                  <th>漲跌</th>
+                  <th>時間</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="quoteRows"></tbody>
+            </table>
+          </div>
+          <div id="emptyQuotes" class="empty-state" hidden>找不到符合條件的快照資料。</div>
+        </section>
+      </main>
+    </div>
+
+    <script src="assets/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,137 @@
+{
+  "generatedAt": "2026-05-11T17:00:00.000Z",
+  "quotes": [
+    {
+      "market": "TWSE",
+      "symbol": "0050",
+      "name": "元大台灣50",
+      "currency": "TWD",
+      "price": 97,
+      "previousClose": 97.7,
+      "change": -0.7,
+      "changePercent": -0.7165,
+      "asOf": "2026-05-08",
+      "source": "TWSE STOCK_DAY_ALL",
+      "status": "mock"
+    },
+    {
+      "market": "TWSE",
+      "symbol": "2330",
+      "name": "台積電",
+      "currency": "TWD",
+      "price": 1195,
+      "previousClose": 1205,
+      "change": -10,
+      "changePercent": -0.8299,
+      "asOf": "2026-05-08",
+      "source": "TWSE STOCK_DAY_ALL",
+      "status": "mock"
+    },
+    {
+      "market": "TWSE",
+      "symbol": "2317",
+      "name": "鴻海",
+      "currency": "TWD",
+      "price": 149.5,
+      "previousClose": 151,
+      "change": -1.5,
+      "changePercent": -0.9934,
+      "asOf": "2026-05-08",
+      "source": "TWSE STOCK_DAY_ALL",
+      "status": "mock"
+    },
+    {
+      "market": "TPEX",
+      "symbol": "00679B",
+      "name": "元大美債20年",
+      "currency": "TWD",
+      "price": 26.7,
+      "previousClose": 26.71,
+      "change": -0.01,
+      "changePercent": -0.0374,
+      "asOf": "2026-05-11",
+      "source": "TPEx daily close",
+      "status": "mock"
+    },
+    {
+      "market": "US",
+      "symbol": "AAPL",
+      "name": "APPLE INC",
+      "currency": "USD",
+      "price": 291.15,
+      "previousClose": 293.32,
+      "change": -2.17,
+      "changePercent": -0.7398,
+      "asOf": "2026-05-11 19:03:01",
+      "source": "Stooq quote CSV",
+      "status": "mock"
+    },
+    {
+      "market": "US",
+      "symbol": "MSFT",
+      "name": "MICROSOFT CORP",
+      "currency": "USD",
+      "price": 515.36,
+      "previousClose": 514.86,
+      "change": 0.5,
+      "changePercent": 0.0971,
+      "asOf": "2026-05-11",
+      "source": "Stooq quote CSV",
+      "status": "mock"
+    },
+    {
+      "market": "US",
+      "symbol": "NVDA",
+      "name": "NVIDIA CORP",
+      "currency": "USD",
+      "price": 199.11,
+      "previousClose": 198.2,
+      "change": 0.91,
+      "changePercent": 0.4591,
+      "asOf": "2026-05-11",
+      "source": "Stooq quote CSV",
+      "status": "mock"
+    },
+    {
+      "market": "US",
+      "symbol": "SPY",
+      "name": "SPDR S&P 500 ETF",
+      "currency": "USD",
+      "price": 682.1,
+      "previousClose": 680.8,
+      "change": 1.3,
+      "changePercent": 0.1909,
+      "asOf": "2026-05-11",
+      "source": "Stooq quote CSV",
+      "status": "mock"
+    }
+  ],
+  "fx": {
+    "USDTWD": 31.405,
+    "asOf": "2026-05-11",
+    "source": "Bank of Taiwan flcsv",
+    "status": "mock"
+  },
+  "sources": {
+    "TWSE": {
+      "status": "mock",
+      "count": 3,
+      "message": "Bundled sample data"
+    },
+    "TPEX": {
+      "status": "mock",
+      "count": 1,
+      "message": "Bundled sample data"
+    },
+    "STOOQ": {
+      "status": "mock",
+      "count": 4,
+      "message": "Bundled sample data"
+    },
+    "BOT": {
+      "status": "mock",
+      "count": 1,
+      "message": "Bundled sample data"
+    }
+  }
+}
